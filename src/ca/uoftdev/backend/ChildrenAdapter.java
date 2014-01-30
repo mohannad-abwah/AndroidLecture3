@@ -7,7 +7,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class ChildrenAdapter extends BaseAdapter {
-	
+
 	private Child[] data;
 
 	@Override
@@ -27,32 +27,36 @@ public class ChildrenAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		convertView = prepareView(convertView, parent);
-		
-		// fill it in
-		populateView(position, convertView);
-		
-		return convertView;
-	}
-
-	public void populateView(int position, View convertView) {
-		Child item = getItem(position);
-		TextView textView = (TextView) convertView.findViewById(R.id.list_item_text);
-		textView.setText(item.getKind());
-	}
-
-	public View prepareView(View convertView, ViewGroup parent) {
+		ViewHolder holder;
 		if (convertView == null) {
 			LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 			convertView = inflater.inflate(R.layout.list_item, parent, false);
+			holder = new ViewHolder(convertView);
+			convertView.setTag(holder);
+		} else {
+			holder = (ViewHolder) convertView.getTag();
 		}
+
+		// fill it in
+		Child item = getItem(position);
+		holder.textView.setText(item.getKind());
+
 		return convertView;
 	}
-
 
 	public void updateData(Child[] data) {
 		this.data = data;
 		notifyDataSetChanged();
 	}
-	
+
+	private static class ViewHolder {
+
+		private TextView textView;
+
+		public ViewHolder(View convertView) {
+			this.textView = (TextView) convertView.findViewById(R.id.list_item_text);
+		}
+
+	}
+
 }
