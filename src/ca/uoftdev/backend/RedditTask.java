@@ -2,15 +2,19 @@ package ca.uoftdev.backend;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
 
-public class RedditTask extends AsyncTask<Void, Void, String> {
+public class RedditTask extends AsyncTask<Void, Void, RedditModel> {
 	
 	private final Activity activity;
 
@@ -24,39 +28,33 @@ public class RedditTask extends AsyncTask<Void, Void, String> {
 	}
 
 	@Override
-	protected String doInBackground(Void... params) {
-		String json = null;
+	protected RedditModel doInBackground(Void... params) {
 		try {
 			URL url = new URL("http://www.reddit.com/.json");
 			InputStream stream = url.openStream();
-			json = convertStreamToString(stream);
-			Log.d("TAG", json);
+			
+			Gson gson = new Gson();
+			InputStreamReader inputStreamReader = new InputStreamReader(stream);
+			JsonReader jsonReader = new JsonReader(inputStreamReader);
+			RedditModel model = gson.fromJson(jsonReader, RedditModel.class);
+			return model;
+
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		return json;
+		return null;
 	}
 	
 	@Override
-	protected void onPostExecute(String result) {
+	protected void onPostExecute(RedditModel result) {
 		super.onPostExecute(result);
 		if (activity.isDestroyed() || activity.isFinishing())
 			return;
 		
 		TextView textView = (TextView) activity.findViewById(R.id.text_view);
-		textView.setText(result);
+		textView.setText(result.getKind());
 	}
-
-	static String convertStreamToString(java.io.InputStream is) {
-	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-	    String string = s.hasNext() ? s.next() : "";
-	    s.close();
-		return string;
-	}
-	
 }
