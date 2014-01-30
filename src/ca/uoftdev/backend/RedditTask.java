@@ -6,25 +6,20 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
-
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.TextView;
+
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
 public class RedditTask extends AsyncTask<Void, Void, RedditModel> {
 	
 	private final Activity activity;
+	private ChildrenAdapter adapter;
 
-	public RedditTask(Activity activity) {
+	public RedditTask(Activity activity, ChildrenAdapter adapter) {
 		this.activity = activity;
-	}
-
-	@Override
-	protected void onPreExecute() {
-		super.onPreExecute();
+		this.adapter = adapter;
 	}
 
 	@Override
@@ -36,6 +31,7 @@ public class RedditTask extends AsyncTask<Void, Void, RedditModel> {
 			Gson gson = new Gson();
 			InputStreamReader inputStreamReader = new InputStreamReader(stream);
 			JsonReader jsonReader = new JsonReader(inputStreamReader);
+			
 			RedditModel model = gson.fromJson(jsonReader, RedditModel.class);
 			return model;
 
@@ -54,7 +50,6 @@ public class RedditTask extends AsyncTask<Void, Void, RedditModel> {
 		if (activity.isDestroyed() || activity.isFinishing())
 			return;
 		
-		TextView textView = (TextView) activity.findViewById(R.id.text_view);
-		textView.setText(result.getKind());
+		adapter.updateData(result.getChildren());
 	}
 }
